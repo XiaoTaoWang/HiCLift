@@ -32,7 +32,7 @@ def make_mapping_table(chroms_path, lo, resolution=200):
     return D
 
 def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_assembly, out_assembly,
-    chain_file, resolution=500, nproc_in=8, nproc_out=8, tmpdir='/tmp', memory='4G'):
+    chain_file, resolution=500, nproc_in=8, nproc_out=8, tmpdir='/tmp', memory='4G', high_res=False):
     
     tmpdir = os.path.abspath(os.path.expanduser(tmpdir))
     if not os.path.exists(tmpdir):
@@ -123,22 +123,44 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
         command = ['pairix', out_path]
         subprocess.check_call(' '.join(command), shell=True)
         if out_format == 'cool':
-            clr = cooler.Cooler(in_path)
-            binsize = clr.binsize
-            bin_label = ':'.join([out_chroms, str(binsize)])
-            unit, denom = ('kb', 1000) if (binsize / 1000 < 1000) else ('mb', 1000000)
-            reslabel = str(binsize // denom) + unit
-            outcool = os.path.join(outfolder, '{0}.{1}.cool'.format(out_pre, reslabel))
-            command = ['cooler', 'cload', 'pairix', '--assembly', out_assembly, '--nproc', str(nproc_out),
-                       '--max-split 12', bin_label, out_path, outcool]
-            log.info('Generate contact matrix in cool at {0} ...'.format(reslabel))
-            subprocess.check_call(' '.join(command), shell=True)
+            if high_res:
+                outcool = os.path.join(tmpdir, '{0}.{1}.cool'.format(out_pre, '1kb'))
+                bin_label = ':'.join([out_chroms, str(1000)])
+                log.info('Generate contact matrix using cooler at 2500000,1000000,500000,250000,100000,50000,25000,10000,5000,2000,1000 ...')
+                command = ['cooler', 'cload', 'pairix', '--assembly', out_assembly, '--nproc', str(nproc_out),
+                           '--max-split 12', bin_label, out_path, outcool]
+                subprocess.check_call(' '.join(command), shell=True)
+                outmcool = os.path.join(outfolder, '{0}.mcool'.format(out_pre))
+                command = ['cooler', 'zoomify', '-p', str(nproc_out), '-r 1000,2000,5000,10000,25000,50000,100000,250000,500000,1000000,2500000',
+                           '--balance', '-o', outmcool, outcool]
+                subprocess.check_call(' '.join(command), shell=True)
+            else:
+                outcool = os.path.join(tmpdir, '{0}.{1}.cool'.format(out_pre, '5kb'))
+                bin_label = ':'.join([out_chroms, str(5000)])
+                log.info('Generate contact matrix using cooler at 2500000,1000000,500000,250000,100000,50000,25000,10000,5000 ...')
+                command = ['cooler', 'cload', 'pairix', '--assembly', out_assembly, '--nproc', str(nproc_out),
+                           '--max-split 12', bin_label, out_path, outcool]
+                subprocess.check_call(' '.join(command), shell=True)
+                outmcool = os.path.join(outfolder, '{0}.mcool'.format(out_pre))
+                command = ['cooler', 'zoomify', '-p', str(nproc_out), '-r 5000,10000,25000,50000,100000,250000,500000,1000000,2500000',
+                           '--balance', '-o', outmcool, outcool]
+                subprocess.check_call(' '.join(command), shell=True)
+            
+            os.remove(outcool)
         else:
             data_folder = os.path.join(os.path.split(pairLiftOver.__file__)[0], 'data')
             juicer_folder = os.path.join(data_folder, 'juicer_tools_1.11.09_jcuda.0.8.jar')
             outhic = os.path.join(outfolder, '{0}.hic'.format(out_pre))
-            command = ['java', '-jar', juicer_folder, 'pre', out_path, outhic, out_chroms]
-            log.info('Generate contact matrices using juicer ...')
+            if high_res:
+                command = ['java', '-Xmx'+memory.lower(), '-jar', juicer_folder, 'pre',
+                            '-r 2500000,1000000,500000,250000,100000,50000,25000,10000,5000,2000,1000',
+                            out_path, outhic, out_chroms]
+                log.info('Generate contact matrices using juicer at 2500000,1000000,500000,250000,100000,50000,25000,10000,5000,2000,1000 ...')
+            else:
+                command = ['java', '-Xmx'+memory.lower(), '-jar', juicer_folder, 'pre',
+                            '-r 2500000,1000000,500000,250000,100000,50000,25000,10000,5000',
+                            out_path, outhic, out_chroms]
+                log.info('Generate contact matrices using juicer at 2500000,1000000,500000,250000,100000,50000,25000,10000,5000 ...')
             subprocess.check_call(' '.join(command), shell=True)
 
         os.remove(out_path)

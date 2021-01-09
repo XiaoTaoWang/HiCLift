@@ -30,6 +30,10 @@ def getargs():
     parser.add_argument('--out-pre', help='''Output file path.''')
     parser.add_argument('--output-format', default='pairs', choices=['pairs', 'cool', 'hic'],
                         help='''The output format.''')
+    parser.add_argument('--high-res', action = 'store_true', help='''If specified, bin pairs at 11 base-pair-delimited resolutions:
+                        2500000,1000000,500000,250000,100000,50000,25000,10000,5000,2000,1000. The default setting is binning pairs at
+                        9 resolutions: 2500000,1000000,500000,250000,100000,50000,25000,10000,5000. This parameter is only valid when
+                        "--output-format" is set to "cool" or "hic".''')
     parser.add_argument('--in-chromsizes', help='''Path to the file containing chromosome sizes of the input assembly.
                         The chromosome order in this file will be used to make the mapping table. This parameter is
                         optional if the parameter "--resolution" is set to None.''')
@@ -90,10 +94,11 @@ def run():
                    '# Output format = {0}'.format(args.output_format),
                    '# Chromosome Sizes of the input assembly = {0}'.format(args.in_chromsizes),
                    '# Chromosome Sizes of the output assembly = {0}'.format(args.out_chromsizes),
+                   '# Resolution for building mapping table = {0}'.format(args.resolution),
+                   '# Generate contact maps at 11 resolutions = {0}'.format(args.high_res),
                    '# Input assembly = {0}'.format(args.in_assembly),
                    '# Output assembly = {0}'.format(args.out_assembly),
                    '# Chain file = {0}'.format(args.chain_file),
-                   '# Resolution = {0}'.format(args.resolution),
                    '# Temporary Dir = {0}'.format(args.tmpdir),
                    '# Allocated memory = {0}'.format(args.memory),
                    '# Number of Processes = {0}'.format(args.nproc),
