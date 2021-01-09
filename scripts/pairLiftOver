@@ -28,8 +28,8 @@ def getargs():
                         help='''The input format. pairs: 4DN pairs; hic-pro: allValidPairs outputted by HiC-Pro;
                         cooler: Cool URI; juicer: .hic file.''')
     parser.add_argument('--out-pre', help='''Output file path.''')
-    parser.add_argument('--output-format', default='pairs', choices=['pairs', 'cooler', 'juicer'],
-                        help='''The output format. pairs: 4DN pairs; cooler: Cool URI; juicer: .hic file.''')
+    parser.add_argument('--output-format', default='pairs', choices=['pairs', 'cool', 'hic'],
+                        help='''The output format.''')
     parser.add_argument('--in-chromsizes', help='''Path to the file containing chromosome sizes of the input assembly.
                         The chromosome order in this file will be used to make the mapping table. This parameter is
                         optional if the parameter "--resolution" is set to None.''')

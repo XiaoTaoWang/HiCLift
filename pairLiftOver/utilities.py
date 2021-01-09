@@ -122,7 +122,7 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
     else:
         command = ['pairix', out_path]
         subprocess.check_call(' '.join(command), shell=True)
-        if out_format == 'cooler':
+        if out_format == 'cool':
             clr = cooler.Cooler(in_path)
             binsize = clr.binsize
             bin_label = ':'.join([out_chroms, str(binsize)])
