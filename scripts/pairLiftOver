@@ -1,0 +1,120 @@
+#!/usr/bin/env python
+
+# Created on Tue Sep 8 20:45:18 2020
+# Author: XiaoTao Wang
+
+## Required modules
+
+import argparse, sys, logging, logging.handlers, traceback, pairLiftOver, os, subprocess
+
+currentVersion = pairLiftOver.__version__
+
+
+def getargs():
+    ## Construct an ArgumentParser object for command-line arguments
+    parser = argparse.ArgumentParser(description='''Convert genomic coordinates of contact pairs from
+                                     one assembly to another. Supported inputs: Cool URI, 4DN pairs, and
+                                     allValidPairs outputed by HiC-Pro. The output will be a sorted 4DN-standard
+                                     pairs file''',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    
+    # Version
+    parser.add_argument('-v', '--version', action='version',
+                        version=' '.join(['%(prog)s',currentVersion]),
+                        help='Print version number and exit.')
+
+    parser.add_argument('--input', help='''Input file path.''')
+    parser.add_argument('--input-format', default='pairs', choices=['pairs', 'hic-pro', 'cooler', 'juicer'],
+                        help='''The input format. pairs: 4DN pairs; hic-pro: allValidPairs outputted by HiC-Pro;
+                        cooler: Cool URI; juicer: .hic file.''')
+    parser.add_argument('--out-pre', help='''Output file path.''')
+    parser.add_argument('--output-format', default='pairs', choices=['pairs', 'cooler', 'juicer'],
+                        help='''The output format. pairs: 4DN pairs; cooler: Cool URI; juicer: .hic file.''')
+    parser.add_argument('--in-chromsizes', help='''Path to the file containing chromosome sizes of the input assembly.
+                        The chromosome order in this file will be used to make the mapping table. This parameter is
+                        optional if the parameter "--resolution" is set to None.''')
+    parser.add_argument('--out-chromsizes', help='''Path to the file containing chromosome sizes of the target assembly.
+                        The chromosome order in this file will be used to flip inter-chromosomal pairs.''')
+    parser.add_argument('--in-assembly', default='hg19', help='''Genome assembly of the input.''')
+    parser.add_argument('--out-assembly', default='hg38', help='''Target assembly of the output.''')
+    parser.add_argument('--chain-file', help='''The coordinate conversion chain file from UCSC. If not provided, the file
+                        will be internally downloaded according to "--in-assembly" and "--out-assembly".''')
+    parser.add_argument('--resolution', type=int, help='''If provided, a coordinate mapping table will be
+                        computed to accelerate the conversion.''')
+    parser.add_argument('--tmpdir', default='.pairliftover', help='''Temporary folder for intermediate results.''')
+    parser.add_argument('--memory', default='4G', help='''The amount of allocated memory.''')
+    parser.add_argument('--nproc', default=8, type=int, help='''Number of allocated processes''')
+    parser.add_argument('--logFile', default = 'pairLiftOver.log', help = '''Logging file name.''')
+
+    ## Parse the command-line arguments
+    commands = sys.argv[1:]
+    if not commands:
+        commands.append('-h')
+    args = parser.parse_args(commands)
+    
+    return args, commands
+
+
+def run():
+
+    # Parse Arguments
+    args, commands = getargs()
+    # Improve the performance if you don't want to run it
+    if commands[0] not in ['-h', '-v', '--help', '--version']:
+        ## Root Logger Configuration
+        logger = logging.getLogger()
+        logger.setLevel(10)
+        console = logging.StreamHandler()
+        filehandler = logging.handlers.RotatingFileHandler(args.logFile,
+                                                           maxBytes=100000,
+                                                           backupCount=5)
+        # Set level for Handlers
+        console.setLevel('INFO')
+        filehandler.setLevel('INFO')
+        # Customizing Formatter
+        formatter = logging.Formatter(fmt = '%(name)-25s %(levelname)-7s @ %(asctime)s: %(message)s',
+                                      datefmt = '%m/%d/%y %H:%M:%S')
+        
+        ## Unified Formatter
+        console.setFormatter(formatter)
+        filehandler.setFormatter(formatter)
+        # Add Handlers
+        logger.addHandler(console)
+        logger.addHandler(filehandler)
+        
+        ## Logging for argument setting
+        arglist = ['# ARGUMENT LIST:',
+                   '# Input path = {0}'.format(args.input),
+                   '# Input format = {0}'.format(args.input_format),
+                   '# Output prefix = {0}'.format(args.out_pre),
+                   '# Output format = {0}'.format(args.output_format),
+                   '# Chromosome Sizes of the input assembly = {0}'.format(args.in_chromsizes),
+                   '# Chromosome Sizes of the output assembly = {0}'.format(args.out_chromsizes),
+                   '# Input assembly = {0}'.format(args.in_assembly),
+                   '# Output assembly = {0}'.format(args.out_assembly),
+                   '# Chain file = {0}'.format(args.chain_file),
+                   '# Resolution = {0}'.format(args.resolution),
+                   '# Temporary Dir = {0}'.format(args.tmpdir),
+                   '# Allocated memory = {0}'.format(args.memory),
+                   '# Number of Processes = {0}'.format(args.nproc),
+                   '# Log file name = {0}'.format(args.logFile)
+                   ]
+        argtxt = '\n'.join(arglist)
+        logger.info('\n' + argtxt)
+
+        from pairLiftOver.utilities import liftover
+
+        liftover(
+            args.input, args.out_pre, args.input_format, args.output_format,
+            args.in_chromsizes, args.out_chromsizes,
+            args.in_assembly, args.out_assembly,
+            args.chain_file,
+            resolution = args.resolution,
+            nproc_in = args.nproc,
+            nproc_out = args.nproc,
+            tmpdir = args.tmpdir,
+            memory = args.memory
+        )
+
+if __name__ == '__main__':
+    run()
