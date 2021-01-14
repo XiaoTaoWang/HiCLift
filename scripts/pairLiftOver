@@ -13,9 +13,7 @@ currentVersion = pairLiftOver.__version__
 def getargs():
     ## Construct an ArgumentParser object for command-line arguments
     parser = argparse.ArgumentParser(description='''Convert genomic coordinates of contact pairs from
-                                     one assembly to another. Supported inputs: Cool URI, 4DN pairs, and
-                                     allValidPairs outputed by HiC-Pro. The output will be a sorted 4DN-standard
-                                     pairs file''',
+                                     one assembly to another.''',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     
     # Version
@@ -34,17 +32,12 @@ def getargs():
                         2500000,1000000,500000,250000,100000,50000,25000,10000,5000,2000,1000. The default setting is binning pairs at
                         9 resolutions: 2500000,1000000,500000,250000,100000,50000,25000,10000,5000. This parameter is only valid when
                         "--output-format" is set to "cool" or "hic".''')
-    parser.add_argument('--in-chromsizes', help='''Path to the file containing chromosome sizes of the input assembly.
-                        The chromosome order in this file will be used to make the mapping table. This parameter is
-                        optional if the parameter "--resolution" is set to None.''')
     parser.add_argument('--out-chromsizes', help='''Path to the file containing chromosome sizes of the target assembly.
                         The chromosome order in this file will be used to flip inter-chromosomal pairs.''')
     parser.add_argument('--in-assembly', default='hg19', help='''Genome assembly of the input.''')
     parser.add_argument('--out-assembly', default='hg38', help='''Target assembly of the output.''')
     parser.add_argument('--chain-file', help='''The coordinate conversion chain file from UCSC. If not provided, the file
                         will be internally downloaded according to "--in-assembly" and "--out-assembly".''')
-    parser.add_argument('--resolution', type=int, help='''If provided, a coordinate mapping table will be
-                        computed to accelerate the conversion.''')
     parser.add_argument('--tmpdir', default='.pairliftover', help='''Temporary folder for intermediate results.''')
     parser.add_argument('--memory', default='4G', help='''The amount of allocated memory.''')
     parser.add_argument('--nproc', default=8, type=int, help='''Number of allocated processes''')
@@ -92,9 +85,7 @@ def run():
                    '# Input format = {0}'.format(args.input_format),
                    '# Output prefix = {0}'.format(args.out_pre),
                    '# Output format = {0}'.format(args.output_format),
-                   '# Chromosome Sizes of the input assembly = {0}'.format(args.in_chromsizes),
                    '# Chromosome Sizes of the output assembly = {0}'.format(args.out_chromsizes),
-                   '# Resolution for building mapping table = {0}'.format(args.resolution),
                    '# Generate contact maps at 11 resolutions = {0}'.format(args.high_res),
                    '# Input assembly = {0}'.format(args.in_assembly),
                    '# Output assembly = {0}'.format(args.out_assembly),
@@ -111,14 +102,15 @@ def run():
 
         liftover(
             args.input, args.out_pre, args.input_format, args.output_format,
-            args.in_chromsizes, args.out_chromsizes,
+            None, args.out_chromsizes,
             args.in_assembly, args.out_assembly,
             args.chain_file,
-            resolution = args.resolution,
+            resolution = None,
             nproc_in = args.nproc,
             nproc_out = args.nproc,
             tmpdir = args.tmpdir,
-            memory = args.memory
+            memory = args.memory,
+            high_res = args.high_res
         )
 
 if __name__ == '__main__':

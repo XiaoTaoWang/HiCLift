@@ -1,4 +1,4 @@
-import pipes, subprocess, struct, strawC, sys, os
+import pipes, subprocess, struct, straw, sys, os
 
 def generate_hic_blocks(chromsizes, step=10000000):
 
@@ -128,15 +128,15 @@ def read_hic_file(hicfil):
     binsize = min(info['Base pair-delimited resolutions'])
     blocks = generate_hic_blocks(chromsizes)
     for c1, bs_1, be_1, c2, bs_2, be_2 in blocks:
-        result = strawC.strawC('NONE', hicfil, '{0}:{1}:{2}'.format(c1, bs_1, be_1), '{0}:{1}:{2}'.format(c2, bs_2, be_2), 'BP', binsize)
+        result = straw.straw('NONE', hicfil, '{0}:{1}:{2}'.format(c1, bs_1, be_1), '{0}:{1}:{2}'.format(c2, bs_2, be_2), 'BP', binsize)
         _c1 = 'chr'+c1.lstrip('chr') # assume every chromosome has the prefix "chr"
         _c2 = 'chr'+c2.lstrip('chr')
-        for k in range(len(result)):
-            s1 = result[k].binX
+        for k in range(len(result[0])):
+            s1 = result[0][k]
             e1 = min(s1 + binsize, chromsizes[c1])
-            s2 = result[k].binY
+            s2 = result[1][k]
             e2 = min(s2 + binsize, chromsizes[c2])
-            yield _c1, s1, e1, _c2, s2, e2, int(result[k].counts)
+            yield _c1, s1, e1, _c2, s2, e2, int(result[2][k])
 
 def open_pairs(path, mode, data_format='pairs', nproc=1):
     
