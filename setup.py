@@ -11,6 +11,9 @@ included with the distribution for more details.
 import os, sys, pairLiftOver, glob
 import setuptools
 
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 if (sys.version_info.major!=3) or (sys.version_info.minor<6):
     print('PYTHON 3.6+ IS REQUIRED. YOU ARE CURRENTLY USING PYTHON {}'.format(sys.version.split()[0]))
     sys.exit(2)
@@ -33,7 +36,8 @@ setuptools.setup(
         '': ['data/*']
     },
     scripts = glob.glob('scripts/*'),
-    long_description = 'test description',
+    long_description = read('README.rst'),
+    long_description_content_type='text/x-rst',
     classifiers = [
         'Programming Language :: Python :: 3.6',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',

@@ -58,12 +58,16 @@ downsampled GM12878 Hi-C datasets (Rao 2014) (ranging from 100 million to 1 bill
 run, the memory and the number of processes allocated to pairLiftOver were set to 8Gb (``--memory 8G``) and
 8 (``--nproc 8``), respectively.
 
+.. image:: ./images/running-time-and-memory.png
+        :align: center
 
 Accuracy
 ========
 So far, pairLiftOver has been tested on datasets of human (Rao 2014, GM12878 and K562), mouse (Rao 2014, CH12-LX)
 and zebrafish (Yang 2020, brain tissue). And the matrices obtained by pairLiftOver are nearly identical to the
-re-mapping results at various resolutions
+re-mapping results at various resolutions.
 
+.. image:: ./images/accuracy.png
+        :align: center
 
 
