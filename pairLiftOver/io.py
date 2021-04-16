@@ -254,6 +254,7 @@ def _pairs_write(outstream, line, chrom_index, mapping_table, lo, resolution, so
     
     if not has_correct_order(hit1, hit2, chrom_index):
         hit1, hit2 = hit2, hit1
+        strand1, strand2 = strand2, strand1
     
     cols = [readID, hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), strand1, strand2]
     outstream.write('\t'.join(cols) + '\n')

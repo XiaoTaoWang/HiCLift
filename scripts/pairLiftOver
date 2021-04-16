@@ -39,7 +39,7 @@ def getargs():
     parser.add_argument('--chain-file', help='''The coordinate conversion chain file from UCSC. If not provided, the file
                         will be internally downloaded according to "--in-assembly" and "--out-assembly".''')
     parser.add_argument('--tmpdir', default='.pairliftover', help='''Temporary folder for intermediate results.''')
-    parser.add_argument('--memory', default='4G', help='''The amount of allocated memory.''')
+    parser.add_argument('--memory', default='8G', help='''The amount of allocated memory.''')
     parser.add_argument('--nproc', default=8, type=int, help='''Number of allocated processes''')
     parser.add_argument('--logFile', default = 'pairLiftOver.log', help = '''Logging file name.''')
 
