@@ -50,6 +50,11 @@ Usage
 =====
 Open a terminal, type ``pairLiftOver -h`` for help information.
 
+Here is an example command which uses a 4DN pairs file in hg19 coordinates as input, and
+outputs an mcool file with chromatin contacts in hg38 coordinates::
+
+    $ pairLiftOver --input test.hg19.pairs.gz --input-format pairs --out-pre test-hg38 --output-format cool --out-chromsizes hg38.chrom.sizes --in-assembly hg19 --out-assembly hg38 --logFile pairLiftOver.log
+
 Running time and memory usage
 =============================
 The running time of pairLiftOver grows linearly with the number of contact pairs. The memory usage can
