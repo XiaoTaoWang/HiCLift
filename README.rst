@@ -12,11 +12,11 @@ Installation
 pairLiftOver is developed and tested on UNIX-like operating system, and following packages
 are required:
 
-- python 3.6+
-- cooler 0.8.6
+- python 3.7+
 - pairtools 0.3.0
+- cooler
 - pyliftover
-- hic-straw
+- hic-straw 0.0.6
 
 We recommend using `conda <https://conda.io/miniconda.html>`_ to manage these packages. After
 you have installed conda on your system, execute the commands below::
@@ -24,9 +24,9 @@ you have installed conda on your system, execute the commands below::
     $ conda config --add channels defaults
     $ conda config --add channels bioconda
     $ conda config --add channels conda-forge
-    $ conda create -n pairliftover python=3.7 pairtools=0.3.0 cooler=0.8.6 pyliftover
+    $ conda create -n pairliftover python=3.7 pairtools=0.3.0 cooler pyliftover
     $ conda activate pairliftover
-    $ pip install pairLiftOver hic-straw
+    $ pip install pairLiftOver hic-straw==0.0.6
 
 Data Format
 ===========

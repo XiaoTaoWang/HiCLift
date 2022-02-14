@@ -25,7 +25,7 @@ def getargs():
     parser.add_argument('--input-format', default='pairs', choices=['pairs', 'hic-pro', 'cooler', 'juicer'],
                         help='''The input format. pairs: 4DN pairs; hic-pro: allValidPairs outputted by HiC-Pro;
                         cooler: Cool URI; juicer: .hic file.''')
-    parser.add_argument('--out-pre', help='''Output file path.''')
+    parser.add_argument('--out-pre', help='''Prefix of the output file names''')
     parser.add_argument('--output-format', default='pairs', choices=['pairs', 'cool', 'hic'],
                         help='''The output format.''')
     parser.add_argument('--high-res', action = 'store_true', help='''If specified, bin pairs at 11 base-pair-delimited resolutions:
