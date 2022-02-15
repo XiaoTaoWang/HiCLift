@@ -36,8 +36,7 @@ and `hic <https://github.com/aidenlab/juicer/wiki/Data>`_. It is necessary to pr
 (`4DN pairs <https://github.com/4dn-dcic/pairix/blob/master/pairs_format_specification.md>`_ or
 `allValidPairs <https://nservant.github.io/HiC-Pro/RESULTS.html>`_) to get the most accurate results,
 however, when such file is not available, pairLiftOver can also operate on contact matrices binned at kilobase resolutions
-(in `cool <https://open2c.github.io/cooler/>`_ or `hic <https://github.com/aidenlab/juicer/wiki/Data>`_ formats). In this case,
-pairLiftOver iterates each bin pair (pixel) and converts the midpoint coordinate of each bin to the target assembly.
+(in `cool <https://open2c.github.io/cooler/>`_ or `hic <https://github.com/aidenlab/juicer/wiki/Data>`_ formats).
 For hic format, since multiple matrices at various resolutions are stored in a single file, pairLiftOver automatically detects
 and reads data from the one at the highest resolution. 
 
