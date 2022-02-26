@@ -52,7 +52,19 @@ Open a terminal, type ``pairLiftOver -h`` for help information.
 Here is an example command which uses a 4DN pairs file in hg19 coordinates as input, and
 outputs an mcool file with chromatin contacts in hg38 coordinates::
 
-    $ pairLiftOver --input test.hg19.pairs.gz --input-format pairs --out-pre test-hg38 --output-format cool --out-chromsizes hg38.chrom.sizes --in-assembly hg19 --out-assembly hg38 --logFile pairLiftOver.log
+    $ pairLiftOver --input test.hg19.pairs.gz --input-format pairs --out-pre test-hg38 \
+    --output-format cool --out-chromsizes hg38.chrom.sizes --in-assembly hg19 --out-assembly hg38 \
+    --logFile pairLiftOver.log
+
+Since the version 0.1.3, pairLiftOver has added a function to perform a pure
+format conversion. For example, the following command transforms a contact matrix
+from the .cool format to the .hic format, without the coordinate liftover. Note that
+the values of ``--in-assembly`` and ``--out-assembly`` need to be the same to turn
+on this function::
+
+    $ pairLiftOver --input Rao2014-K562-MboI-allreps-filtered.5kb.cool --input-format cooler \
+    --out-pre K562-format-conversion-test --output-format hic --out-chromsizes hg19.chrom.sizes \
+    --in-assembly hg19 --out-assembly hg19 --memory 40G
 
 Running time and memory usage
 =============================
