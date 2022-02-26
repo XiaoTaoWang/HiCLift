@@ -101,7 +101,7 @@ def run():
         from pairLiftOver.utilities import liftover
 
         if args.in_assembly == args.out_assembly:
-            logger.info('Trying to perform a pure format conversion from {0} to {1} ...'.format(args.in_assembly, args.out_assembly))
+            logger.info('Trying to perform a pure format conversion without liftover ...')
             if ((args.input_format == 'pairs') and (args.output_format == 'pairs')) or \
                ((args.input_format == 'cooler') and (args.output_format == 'cool')) or \
                ((args.input_format == 'juicer') and (args.output_format == 'hic')):

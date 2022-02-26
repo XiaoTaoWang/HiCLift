@@ -258,11 +258,19 @@ def _pixel_to_reads(outstream, line, chrom_index, mapping_table, lo, resolution,
             cols = ['.', hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), '.', '.']
             outstream.write('\t'.join(cols) + '\n')
     else:
+        if (not c1_ in chrom_index) or (not c2_ in chrom_index):
+            return total_count, mapped_count
+        
         mapped_count += v
         p1_ = (s1_ + e1_) // 2
         p2_ = (s2_ + e2_) // 2
+        hit1 = (c1_, p1_)
+        hit2 = (c2_, p2_)
+        if not has_correct_order(hit1, hit2, chrom_index):
+            hit1, hit2 = hit2, hit1
+
         for i in range(v):
-            cols = ['.', c1_, str(p1_), c2_, str(p2_), '.', '.']
+            cols = ['.', hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), '.', '.']
             outstream.write('\t'.join(cols) + '\n')
 
     return total_count, mapped_count
@@ -297,9 +305,18 @@ def _pairs_write(outstream, line, chrom_index, mapping_table, lo, resolution, so
         cols = [readID, hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), strand1, strand2]
         outstream.write('\t'.join(cols) + '\n')
     else:
-        cols = [readID, c1_, str(p1_), c2_, str(p2_), strand1, strand2]
-        outstream.write('\t'.join(cols) + '\n')
+        if (not c1_ in chrom_index) or (not c2_ in chrom_index):
+            return total_count, mapped_count
             
+        hit1 = (c1_, p1_)
+        hit2 = (c2_, p2_)
+        if not has_correct_order(hit1, hit2, chrom_index):
+            hit1, hit2 = hit2, hit1
+            strand1, strand2 = strand2, strand1
+
+        cols = [readID, hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), strand1, strand2]
+        outstream.write('\t'.join(cols) + '\n')
+
     mapped_count += 1
 
     return total_count, mapped_count
