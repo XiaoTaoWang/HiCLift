@@ -248,7 +248,7 @@ def _pixel_to_reads(outstream, line, chrom_index, mapping_table, lo, resolution,
             return total_count, mapped_count
     
         mapped_count += v
-        for i in range(v):
+        for _ in range(v):
             p1 = random.randint(l1[1], r1[1])
             p2 = random.randint(l2[1], r2[1])
             hit1 = (l1[0], p1)
@@ -269,7 +269,7 @@ def _pixel_to_reads(outstream, line, chrom_index, mapping_table, lo, resolution,
         if not has_correct_order(hit1, hit2, chrom_index):
             hit1, hit2 = hit2, hit1
 
-        for i in range(v):
+        for _ in range(v):
             cols = ['.', hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), '.', '.']
             outstream.write('\t'.join(cols) + '\n')
 
@@ -307,7 +307,7 @@ def _pairs_write(outstream, line, chrom_index, mapping_table, lo, resolution, so
     else:
         if (not c1_ in chrom_index) or (not c2_ in chrom_index):
             return total_count, mapped_count
-            
+
         hit1 = (c1_, p1_)
         hit2 = (c2_, p2_)
         if not has_correct_order(hit1, hit2, chrom_index):

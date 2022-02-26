@@ -68,7 +68,7 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
     
     # sort command
     command = r'''/bin/bash -c 'export LC_COLLATE=C; export LANG=C; sort -k 2,2 -k 4,4 -k 3,3n -k 5,5n --stable {0} {1} -S {2} {3}'''.format(
-        '--parallel={0}'.format(nproc_out), '--temporary-directory={0}'.format(tmpdir), memory,'--compress-program=lz4c'
+        '--parallel={0}'.format(nproc_out), '--temporary-directory={0}'.format(tmpdir), '8G', '--compress-program=lz4c'
     )
     command += "'"
 
@@ -87,6 +87,7 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
         log.info('Converting, sorting, and compressing ...')
     else:
         lo = None
+        mapping_table = None
         log.info('Dumping contact pairs from {0} ...'.format(in_path))
 
     total_count = 0
