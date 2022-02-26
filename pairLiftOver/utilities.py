@@ -52,24 +52,15 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
         columns=['readID', 'chrom1', 'pos1', 'chrom2', 'pos2', 'strand1', 'strand2'],
         shape='upper triangle'
     )
-    header.append('#pairLiftOver: coordinates transformed from {0}'.format(in_assembly))
+    if in_assembly != out_assembly:
+        header.append('#pairLiftOver: coordinates transformed from {0}'.format(in_assembly))
+    else:
+        header.append('#pairLiftOver: pure data format conversion')
 
     outstream.writelines((l+'\n' for l in header))
     outstream.flush()
     
-    # build the mapping table at the given resolution
-    if not chain_file is None:
-        lo = LiftOver(chain_file)
-    else:
-        lo = LiftOver(in_assembly, out_assembly)
-    if not resolution is None:
-        log.info('Building the mapping table at the resolution: {0}'.format(resolution))
-        mapping_table = make_mapping_table(in_chroms, lo, resolution)
-    else:
-        mapping_table = None
-    
     chrom_index = dict(_headerops.get_chrom_order(out_chroms))
-
     if in_format in ['cooler', 'juicer']:
         body_stream = instream
     else:
@@ -80,8 +71,24 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
         '--parallel={0}'.format(nproc_out), '--temporary-directory={0}'.format(tmpdir), memory,'--compress-program=lz4c'
     )
     command += "'"
-    
-    log.info('Converting, sorting, and compressing ...')
+
+    if in_assembly != out_assembly:
+        # build the mapping table at the given resolution
+        if not chain_file is None:
+            lo = LiftOver(chain_file)
+        else:
+            lo = LiftOver(in_assembly, out_assembly)
+        if not resolution is None:
+            log.info('Building the mapping table at the resolution: {0}'.format(resolution))
+            mapping_table = make_mapping_table(in_chroms, lo, resolution)
+        else:
+            mapping_table = None
+        
+        log.info('Converting, sorting, and compressing ...')
+    else:
+        lo = None
+        log.info('Dumping contact pairs from {0} ...'.format(in_path))
+
     total_count = 0
     mapped_count = 0
     with subprocess.Popen(command, stdin=subprocess.PIPE, bufsize=-1, shell=True, stdout=outstream) as process:
@@ -108,7 +115,9 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
         stdin_wrapper.flush()
         process.communicate()
     
-    log.info('{0:,} / {1:,} pairs were uniquely mapped to {2}'.format(mapped_count, total_count, out_assembly))
+    if in_assembly != out_assembly:
+        log.info('{0:,} / {1:,} pairs were uniquely mapped to {2}'.format(mapped_count, total_count, out_assembly))
+
     if instream != sys.stdin:
         instream.close()
     if outstream != sys.stdout:

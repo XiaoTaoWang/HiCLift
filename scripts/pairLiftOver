@@ -100,18 +100,38 @@ def run():
 
         from pairLiftOver.utilities import liftover
 
-        liftover(
-            args.input, args.out_pre, args.input_format, args.output_format,
-            None, args.out_chromsizes,
-            args.in_assembly, args.out_assembly,
-            args.chain_file,
-            resolution = None,
-            nproc_in = args.nproc,
-            nproc_out = args.nproc,
-            tmpdir = args.tmpdir,
-            memory = args.memory,
-            high_res = args.high_res
-        )
+        if args.in_assembly == args.out_assembly:
+            logger.info('Trying to perform a pure format conversion from {0} to {1} ...'.format(args.in_assembly, args.out_assembly))
+            if ((args.input_format == 'pairs') and (args.output_format == 'pairs')) or \
+               ((args.input_format == 'cooler') and (args.output_format == 'cool')) or \
+               ((args.input_format == 'juicer') and (args.output_format == 'hic')):
+               logger.info('The target format is the same as the input format, exit ...')
+            else:
+                liftover(
+                    args.input, args.out_pre, args.input_format, args.output_format,
+                    None, args.out_chromsizes,
+                    args.in_assembly, args.out_assembly,
+                    args.chain_file,
+                    resolution = None,
+                    nproc_in = args.nproc,
+                    nproc_out = args.nproc,
+                    tmpdir = args.tmpdir,
+                    memory = args.memory,
+                    high_res = args.high_res
+                )
+        else:
+            liftover(
+                args.input, args.out_pre, args.input_format, args.output_format,
+                None, args.out_chromsizes,
+                args.in_assembly, args.out_assembly,
+                args.chain_file,
+                resolution = None,
+                nproc_in = args.nproc,
+                nproc_out = args.nproc,
+                tmpdir = args.tmpdir,
+                memory = args.memory,
+                high_res = args.high_res
+            )
 
 if __name__ == '__main__':
     run()

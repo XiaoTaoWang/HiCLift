@@ -230,32 +230,40 @@ def _pixel_to_reads(outstream, line, chrom_index, mapping_table, lo, resolution,
         cols = ['.', hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), '.', '.']
         outstream.write('\t'.join(cols) + '\n')
     '''
-    # strategy 2, liftover start and end coordinates of each bin
-    bin_size = e1_ - s1_
-    l1 = _core((c1_, s1_), mapping_table, lo, resolution)
-    r1 = _core((c1_, e1_), mapping_table, lo, resolution)
-    l2 = _core((c2_, s2_), mapping_table, lo, resolution)
-    r2 = _core((c2_, e2_), mapping_table, lo, resolution)
-    if (l1 is None) or (r1 is None) or (l2 is None) or (r2 is None):
-        return total_count, mapped_count
+    if not lo is None:
+        # strategy 2, liftover start and end coordinates of each bin
+        bin_size = e1_ - s1_
+        l1 = _core((c1_, s1_), mapping_table, lo, resolution)
+        r1 = _core((c1_, e1_), mapping_table, lo, resolution)
+        l2 = _core((c2_, s2_), mapping_table, lo, resolution)
+        r2 = _core((c2_, e2_), mapping_table, lo, resolution)
+        if (l1 is None) or (r1 is None) or (l2 is None) or (r2 is None):
+            return total_count, mapped_count
+        
+        if (not l1[0] in chrom_index) or (not r1[0] in chrom_index) \
+            or (not l2[0] in chrom_index) or (not r2[0] in chrom_index):
+            return total_count, mapped_count
+        
+        if (r1[1]-l1[1]!=bin_size) or (r2[1]-l2[1]!=bin_size) or (l1[0]!=r1[0]) or (l2[0]!=r2[0]):
+            return total_count, mapped_count
     
-    if (not l1[0] in chrom_index) or (not r1[0] in chrom_index) \
-        or (not l2[0] in chrom_index) or (not r2[0] in chrom_index):
-        return total_count, mapped_count
-    
-    if (r1[1]-l1[1]!=bin_size) or (r2[1]-l2[1]!=bin_size) or (l1[0]!=r1[0]) or (l2[0]!=r2[0]):
-        return total_count, mapped_count
-    
-    mapped_count += v
-    for i in range(v):
-        p1 = random.randint(l1[1], r1[1])
-        p2 = random.randint(l2[1], r2[1])
-        hit1 = (l1[0], p1)
-        hit2 = (l2[0], p2)
-        if not has_correct_order(hit1, hit2, chrom_index):
-            hit1, hit2 = hit2, hit1
-        cols = ['.', hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), '.', '.']
-        outstream.write('\t'.join(cols) + '\n')
+        mapped_count += v
+        for i in range(v):
+            p1 = random.randint(l1[1], r1[1])
+            p2 = random.randint(l2[1], r2[1])
+            hit1 = (l1[0], p1)
+            hit2 = (l2[0], p2)
+            if not has_correct_order(hit1, hit2, chrom_index):
+                hit1, hit2 = hit2, hit1
+            cols = ['.', hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), '.', '.']
+            outstream.write('\t'.join(cols) + '\n')
+    else:
+        mapped_count += v
+        p1_ = (s1_ + e1_) // 2
+        p2_ = (s2_ + e2_) // 2
+        for i in range(v):
+            cols = ['.', c1_, str(p1_), c2_, str(p2_), '.', '.']
+            outstream.write('\t'.join(cols) + '\n')
 
     return total_count, mapped_count
 
@@ -272,20 +280,26 @@ def _pairs_write(outstream, line, chrom_index, mapping_table, lo, resolution, so
     
     total_count += 1
     p1_, p2_ = int(p1_), int(p2_)
-    hit1 = _core((c1_, p1_), mapping_table, lo, resolution)
-    hit2 = _core((c2_, p2_), mapping_table, lo, resolution)
-    if (hit1 is None) or (hit2 is None):
-        return total_count, mapped_count
-    
-    if (not hit1[0] in chrom_index) or (not hit2[0] in chrom_index):
-        return total_count, mapped_count
-    
-    if not has_correct_order(hit1, hit2, chrom_index):
-        hit1, hit2 = hit2, hit1
-        strand1, strand2 = strand2, strand1
-    
-    cols = [readID, hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), strand1, strand2]
-    outstream.write('\t'.join(cols) + '\n')
+
+    if not lo is None:
+        hit1 = _core((c1_, p1_), mapping_table, lo, resolution)
+        hit2 = _core((c2_, p2_), mapping_table, lo, resolution)
+        if (hit1 is None) or (hit2 is None):
+            return total_count, mapped_count
+        
+        if (not hit1[0] in chrom_index) or (not hit2[0] in chrom_index):
+            return total_count, mapped_count
+        
+        if not has_correct_order(hit1, hit2, chrom_index):
+            hit1, hit2 = hit2, hit1
+            strand1, strand2 = strand2, strand1
+        
+        cols = [readID, hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), strand1, strand2]
+        outstream.write('\t'.join(cols) + '\n')
+    else:
+        cols = [readID, c1_, str(p1_), c2_, str(p2_), strand1, strand2]
+        outstream.write('\t'.join(cols) + '\n')
+            
     mapped_count += 1
 
     return total_count, mapped_count
