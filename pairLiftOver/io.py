@@ -1,4 +1,4 @@
-import pipes, subprocess, struct, straw, sys, os, random
+import pipes, subprocess, struct, hicstraw, sys, os, random
 
 def generate_hic_blocks(chromsizes, step=10000000):
 
@@ -67,76 +67,46 @@ def readcstr(f):
 def read_hic_header(hicfile):
 
     if not os.path.exists(hicfile):
-        return None  # probably a cool URI
-
-    req = open(hicfile, 'rb')
-    magic_string = struct.unpack('<3s', req.read(3))[0]
-    req.read(1)
-    if (magic_string != b"HIC"):
-        return None  # this is not a valid .hic file
-
+        return None
+    
+    hic = hicstraw.HiCFile(hicfile)
     info = {}
-    version = struct.unpack('<i', req.read(4))[0]
-    info['version'] = str(version)
+    info['Genome ID'] = hic.getGenomeID()
 
-    masterindex = struct.unpack('<q', req.read(8))[0]
-    info['Master index'] = str(masterindex)
-
-    genome = ""
-    c = req.read(1).decode("utf-8")
-    while (c != '\0'):
-        genome += c
-        c = req.read(1).decode("utf-8")
-    info['Genome ID'] = str(genome)
-
-    nattributes = struct.unpack('<i', req.read(4))[0]
-    attrs = {}
-    for i in range(nattributes):
-        key = readcstr(req)
-        value = readcstr(req)
-        attrs[key] = value
-    info['Attributes'] = attrs
-
-    nChrs = struct.unpack('<i', req.read(4))[0]
     chromsizes = {}
-    for i in range(nChrs):
-        name = readcstr(req)
-        length = struct.unpack('<i', req.read(4))[0]
+    for chrom_obj in hic.getChromosomes():
+        name = chrom_obj.name
+        length = chrom_obj.length
         if (name.upper() != 'ALL'):
             chromsizes[name] = length
 
     info['chromsizes'] = chromsizes
-
-    info['Base pair-delimited resolutions'] = []
-    nBpRes = struct.unpack('<i', req.read(4))[0]
-    for i in range(nBpRes):
-        res = struct.unpack('<i', req.read(4))[0]
-        info['Base pair-delimited resolutions'].append(res)
-
-    info['Fragment-delimited resolutions'] = []
-    nFrag = struct.unpack('<i', req.read(4))[0]
-    for i in range(nFrag):
-        res = struct.unpack('<i', req.read(4))[0]
-        info['Fragment-delimited resolutions'].append(res)
-
+    info['resolutions'] = hic.getResolutions()
+    
     return info
 
 def read_hic_file(hicfil):
 
     info = read_hic_header(hicfil)
     chromsizes = info['chromsizes']
-    binsize = min(info['Base pair-delimited resolutions'])
+    binsize = min(info['resolutions'])
     blocks = generate_hic_blocks(chromsizes)
     for c1, bs_1, be_1, c2, bs_2, be_2 in blocks:
-        result = straw.straw('NONE', hicfil, '{0}:{1}:{2}'.format(c1, bs_1, be_1), '{0}:{1}:{2}'.format(c2, bs_2, be_2), 'BP', binsize)
+        result = hicstraw.straw('observed',
+                                'NONE',
+                                hicfil,
+                                '{0}:{1}:{2}'.format(c1, bs_1, be_1),
+                                '{0}:{1}:{2}'.format(c2, bs_2, be_2),
+                                'BP',
+                                binsize)
         _c1 = 'chr'+c1.lstrip('chr') # assume every chromosome has the prefix "chr"
         _c2 = 'chr'+c2.lstrip('chr')
-        for k in range(len(result[0])):
-            s1 = result[0][k]
+        for k in range(len(result)):
+            s1 = result[k].binX
+            s2 = result[k].binY
             e1 = min(s1 + binsize, chromsizes[c1])
-            s2 = result[1][k]
             e2 = min(s2 + binsize, chromsizes[c2])
-            yield _c1, s1, e1, _c2, s2, e2, int(result[2][k])
+            yield _c1, s1, e1, _c2, s2, e2, int(result[k].counts)
 
 def open_pairs(path, mode, data_format='pairs', nproc=1):
     
