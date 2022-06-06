@@ -26,7 +26,7 @@ you have installed conda on your system, execute the commands below::
     $ conda config --add channels conda-forge
     $ conda create -n pairliftover python=3.7 pairtools=0.3.0 cooler pyliftover
     $ conda activate pairliftover
-    $ pip install pairLiftOver hic-straw==0.0.6
+    $ pip install pairLiftOver hic-straw==1.3.1
 
 Data Format
 ===========
