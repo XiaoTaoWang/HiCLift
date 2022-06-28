@@ -90,7 +90,11 @@ def read_hic_file(hicfil):
     info = read_hic_header(hicfil)
     chromsizes = info['chromsizes']
     binsize = min(info['resolutions'])
-    blocks = generate_hic_blocks(chromsizes)
+    if binsize < 5000:
+        blocks = generate_hic_blocks(chromsizes, step=1000000)
+    else:
+        blocks = generate_hic_blocks(chromsizes, step=10000000)
+        
     for c1, bs_1, be_1, c2, bs_2, be_2 in blocks:
         result = hicstraw.straw('observed',
                                 'NONE',
