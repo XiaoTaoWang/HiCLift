@@ -87,30 +87,52 @@ def read_hic_header(hicfile):
 
 def read_hic_file(hicfil):
 
+    hic = hicstraw.HiCFile(hicfil)
     info = read_hic_header(hicfil)
     chromsizes = info['chromsizes']
     binsize = min(info['resolutions'])
-    if binsize < 5000:
-        blocks = generate_hic_blocks(chromsizes, step=1000000)
+    # check if inter-chromosomal contacts are included
+    maxres = max(info['resolutions'])
+    mzd = hic.getMatrixZoomData('1', '2', "observed", "NONE", "BP", maxres)
+    M = mzd.getRecordsAsMatrix(0, chromsizes['1'], 0, chromsizes['2'])
+    if M.sum() == 0:
+        mode = 'only-intra'
     else:
-        blocks = generate_hic_blocks(chromsizes, step=10000000)
-        
-    for c1, bs_1, be_1, c2, bs_2, be_2 in blocks:
-        result = hicstraw.straw('observed',
-                                'NONE',
-                                hicfil,
-                                '{0}:{1}:{2}'.format(c1, bs_1, be_1),
-                                '{0}:{1}:{2}'.format(c2, bs_2, be_2),
-                                'BP',
-                                binsize)
-        _c1 = 'chr'+c1.lstrip('chr') # assume every chromosome has the prefix "chr"
-        _c2 = 'chr'+c2.lstrip('chr')
-        for k in range(len(result)):
-            s1 = result[k].binX
-            s2 = result[k].binY
-            e1 = min(s1 + binsize, chromsizes[c1])
-            e2 = min(s2 + binsize, chromsizes[c2])
-            yield _c1, s1, e1, _c2, s2, e2, int(result[k].counts)
+        mode = 'whole-genome'
+    
+
+    if binsize < 5000:
+        step = 2000000
+    else:
+        step = 10000000
+
+    chroms = sort_chromlabels(list(chromsizes))
+    for i in range(len(chroms)):
+        for j in range(len(chroms)):
+            if mode == 'only-intra':
+                if i != j:
+                    continue
+            else:
+                if i > j:
+                    continue
+            
+            hic = hicstraw.HiCFile(hicfil)
+            c1 = chroms[i]
+            c2 = chroms[j]
+            _c1 = 'chr' + c1.lstrip('chr')
+            _c2 = 'chr' + c2.lstrip('chr')
+            mzd = hic.getMatrixZoomData(c1, c2, "observed", "NONE", "BP", binsize)
+            for bs_1 in range(0, chromsizes[c1], step):
+                for bs_2 in range(0, chromsizes[c2], step):
+                    be_1 = min(chromsizes[c1], bs_1 + step - 1)
+                    be_2 = min(chromsizes[c2], bs_2 + step - 1)
+                    records_list = mzd.getRecords(bs_1, be_1, bs_2, be_2)
+                    for k in records_list:
+                        s1 = k.binX
+                        s2 = k.binY
+                        e1 = min(s1 + binsize, chromsizes[c1])
+                        e2 = min(s2 + binsize, chromsizes[c2])
+                        yield _c1, s1, e1, _c2, s2, e2, int(k.counts)
 
 def open_pairs(path, mode, data_format='pairs', nproc=1):
     
@@ -184,26 +206,7 @@ def _pixel_to_reads(outstream, line, chrom_index, mapping_table, lo, resolution,
         c1_, s1_, e1_, c2_, s2_, e2_, v = line
 
     total_count += v
-    '''
-    # strategy 1, only consider the midpoint of each bin
-    p1_ = (s1_ + e1_) // 2
-    p2_ = (s2_ + e2_) // 2
-    hit1 = _core((c1_, p1_), mapping_table, lo, resolution)
-    hit2 = _core((c2_, p2_), mapping_table, lo, resolution)
-    if (hit1 is None) or (hit2 is None):
-        return total_count, mapped_count
     
-    if (not hit1[0] in chrom_index) or (not hit2[0] in chrom_index):
-        return total_count, mapped_count
-    
-    if not has_correct_order(hit1, hit2, chrom_index):
-        hit1, hit2 = hit2, hit1
-    
-    mapped_count += v
-    for i in range(v):
-        cols = ['.', hit1[0], str(hit1[1]), hit2[0], str(hit2[1]), '.', '.']
-        outstream.write('\t'.join(cols) + '\n')
-    '''
     if not lo is None:
         # strategy 2, liftover start and end coordinates of each bin
         bin_size = e1_ - s1_
@@ -259,6 +262,9 @@ def _pairs_write(outstream, line, chrom_index, mapping_table, lo, resolution, so
         readID, c1_, p1_, strand1, c2_, p2_, strand2 = parse[:7]
     else:
         readID, c1_, p1_, c2_, p2_, strand1, strand2 = parse[:7]
+    
+    c1_ = 'chr' + c1_.lstrip('chr')
+    c2_ = 'chr' + c2_.lstrip('chr')
     
     total_count += 1
     p1_, p2_ = int(p1_), int(p2_)
