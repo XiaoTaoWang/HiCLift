@@ -91,15 +91,6 @@ def read_hic_file(hicfil):
     info = read_hic_header(hicfil)
     chromsizes = info['chromsizes']
     binsize = min(info['resolutions'])
-    # check if inter-chromosomal contacts are included
-    maxres = max(info['resolutions'])
-    mzd = hic.getMatrixZoomData('1', '2', "observed", "NONE", "BP", maxres)
-    M = mzd.getRecordsAsMatrix(0, chromsizes['1'], 0, chromsizes['2'])
-    if M.sum() == 0:
-        mode = 'only-intra'
-    else:
-        mode = 'whole-genome'
-    
 
     if binsize < 5000:
         step = 2000000
@@ -109,14 +100,9 @@ def read_hic_file(hicfil):
     chroms = sort_chromlabels(list(chromsizes))
     for i in range(len(chroms)):
         for j in range(len(chroms)):
-            if mode == 'only-intra':
-                if i != j:
-                    continue
-            else:
-                if i > j:
-                    continue
+            if i > j:
+                continue
             
-            hic = hicstraw.HiCFile(hicfil)
             c1 = chroms[i]
             c2 = chroms[j]
             _c1 = 'chr' + c1.lstrip('chr')
