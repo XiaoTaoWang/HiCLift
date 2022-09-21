@@ -24,7 +24,7 @@ you have installed conda on your system, execute the commands below::
     $ conda config --add channels defaults
     $ conda config --add channels bioconda
     $ conda config --add channels conda-forge
-    $ conda create -n pairliftover python pairtools cooler pyliftover cxx-compiler
+    $ conda create -n pairliftover pairtools cooler pyliftover cxx-compiler
     $ conda activate pairliftover
     $ pip install pairLiftOver hic-straw
 
