@@ -1,6 +1,6 @@
 import subprocess, sys, os, io, logging, cooler, pairLiftOver
 from pairtools import _headerops
-from pyliftover import LiftOver
+from pairLiftOver.liftover import LiftOver
 from pairLiftOver.io import open_pairs, _pixel_to_reads, _pairs_write
 
 log = logging.getLogger(__name__)
@@ -117,7 +117,7 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
         process.communicate()
     
     if in_assembly != out_assembly:
-        log.info('{0:,} / {1:,} pairs were uniquely mapped to {2}'.format(mapped_count, total_count, out_assembly))
+        log.info('{0:,} / {1:,} pairs were uniquely mapped to the target genome'.format(mapped_count, total_count))
 
     if instream != sys.stdin:
         instream.close()

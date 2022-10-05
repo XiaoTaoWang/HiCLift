@@ -9,22 +9,13 @@ and outputs a sorted pairs file or contact matrix with coordinates in another as
 
 Installation
 ============
-pairLiftOver is developed and tested on UNIX-like operating system, and following packages
-are required:
-
-- python 3.7+
-- pairtools 0.3.0
-- cooler
-- pyliftover
-- hic-straw 0.0.6
-
-We recommend using `conda <https://conda.io/miniconda.html>`_ to manage these packages. After
-you have installed conda on your system, execute the commands below::
+pairLiftOver and all the dependencies can be installed through either `conda <https://conda.io/miniconda.html>`_
+or `pip <https://pypi.org/project/pip/>`_::
 
     $ conda config --add channels defaults
     $ conda config --add channels bioconda
     $ conda config --add channels conda-forge
-    $ conda create -n pairliftover pairtools cooler pyliftover cxx-compiler
+    $ conda create -n pairliftover pairtools cooler kerneltree
     $ conda activate pairliftover
     $ pip install pairLiftOver hic-straw
 
