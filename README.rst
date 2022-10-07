@@ -15,7 +15,7 @@ or `pip <https://pypi.org/project/pip/>`_::
     $ conda config --add channels defaults
     $ conda config --add channels bioconda
     $ conda config --add channels conda-forge
-    $ conda create -n pairliftover pairtools cooler kerneltree
+    $ conda create -n pairliftover cooler pairtools kerneltree
     $ conda activate pairliftover
     $ pip install pairLiftOver hic-straw
 

@@ -1,9 +1,88 @@
 import subprocess, sys, os, io, logging, cooler, pairLiftOver
-from pairtools import _headerops
 from pairLiftOver.liftover import LiftOver
 from pairLiftOver.io import open_pairs, _pixel_to_reads, _pairs_write
 
 log = logging.getLogger(__name__)
+
+def get_chrom_order(chroms_file):
+    """
+    Produce an "enumeration" of chromosomes based on the list
+    of chromosomes
+    """
+    chrom_enum = dict()
+    i = 1
+    with open(chroms_file, 'r') as f:
+        for line in f:
+            chrom = line.strip().split()[0]
+            chrom_enum[chrom] = i
+            i += 1
+
+    return chrom_enum
+
+def make_standard_pairsheader(assembly, chromsizes, columns, shape="upper triangle"):
+
+    header = []
+    header.append("## pairs format v1.0.0")
+    header.append("#shape: {}".format(shape))
+
+    header.append(
+        "#genome_assembly: {}".format(assembly if assembly is not None else "unknown")
+    )
+
+    if chromsizes is not None:
+        try:
+            chromsizes = chromsizes.items()
+        except AttributeError:
+            pass
+        for chrom, length in chromsizes:
+            header.append("#chromsize: {} {}".format(chrom, length))
+    
+    SEP_COLS = " "
+    header.append("#columns: " + SEP_COLS.join(columns))
+
+    return header
+
+def get_header(instream, comment_char='#'):
+    '''Returns a header from the stream and the remainder of the stream
+    with the actual data.
+
+    Parameters
+    ----------
+    instream : a file object
+        An input stream.
+
+    comment_char : str
+        The character prepended to header lines (use '@' when parsing sams, 
+        '#' when parsing pairsams).
+
+    Returns
+    -------
+    header : list
+        The header lines, stripped of terminal spaces and newline characters.
+
+    remainder_stream : stream/file-like object
+        Stream with the remaining lines.
+    
+    '''
+    header = []
+    if not comment_char:
+        raise ValueError('Please, provide a comment char!')
+    comment_byte = comment_char.encode()
+    # get peekable buffer for the instream
+    inbuffer = instream.buffer
+    current_peek = inbuffer.peek()
+    while current_peek.startswith(comment_byte):
+        # consuming a line from buffer guarantees
+        # that the remainder of the buffer starts 
+        # with the beginning of the line.
+        line = inbuffer.readline()
+        # append line to header, since it does start with header
+        header.append(line.decode().strip())
+        # peek into the remainder of the instream
+        current_peek = inbuffer.peek()
+    # apparently, next line does not start with the comment
+    # return header and the instream, advanced to the beginning of the data
+    return header, instream
 
 def extract_chrom_sizes(fil):
 
@@ -47,7 +126,7 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
     # write header
     log.info('Writing headers ...')
     chromsizes = extract_chrom_sizes(out_chroms)
-    header = _headerops.make_standard_pairsheader(
+    header = make_standard_pairsheader(
         assembly=out_assembly, chromsizes=chromsizes,
         columns=['readID', 'chrom1', 'pos1', 'chrom2', 'pos2', 'strand1', 'strand2'],
         shape='upper triangle'
@@ -60,11 +139,11 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
     outstream.writelines((l+'\n' for l in header))
     outstream.flush()
     
-    chrom_index = dict(_headerops.get_chrom_order(out_chroms))
+    chrom_index = get_chrom_order(out_chroms)
     if in_format in ['cooler', 'juicer']:
         body_stream = instream
     else:
-        _, body_stream = _headerops.get_header(instream)
+        _, body_stream = get_header(instream)
     
     # sort command
     command = r'''/bin/bash -c 'export LC_COLLATE=C; export LANG=C; sort -k 2,2 -k 4,4 -k 3,3n -k 5,5n --stable {0} {1} -S {2} {3}'''.format(
