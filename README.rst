@@ -77,9 +77,4 @@ re-mapping results at various resolutions.
 .. image:: ./images/accuracy.png
         :align: center
 
-Citation
-========
-Wang, X., Luan, Y., Yue, F. EagleC: A deep-learning framework for detecting a full range of
-structural variations from bulk and single-cell contact maps. Sci Adv. 2022.
-
 
