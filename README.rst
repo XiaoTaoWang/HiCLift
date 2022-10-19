@@ -1,11 +1,15 @@
 pairLiftOver
 ============
-pairLiftOver is a Python package that converts the two-dimensional genomic coordinates
-of chromatin contact pairs between assemblies.
-
-pairLiftOver is based on the `UCSC chain files <https://genome.ucsc.edu/goldenPath/help/chain.html>`_.
-It takes a pairs file or matrix file as input, performs coordinate conversion for each contact pair,
-and outputs a sorted pairs file or contact matrix with coordinates in another assembly.
+The conversion of genomic coordinates between different assemblies is a common task in many
+integrative and comparative studies. While a number of tools are available to accomplish
+this task for one-dimensional datasets, such as those from ChIP-Seq, ATAC-Seq, and RNA-Seq,
+none of them can handle with chromatin contact data that are associated with two-dimensional
+(2D) coordinates. Here we present pairLiftOver, a UCSC-chain-file-based tool, that converts
+the 2D genomic coordinates of chromatin contacts from one assembly to another. Using Hi-C
+of various species as the benchmark datasets, we show that pairLiftOver runs efficiently
+and outputs nearly identical contact matrices with the ones with raw sequencing reads
+re-mapped to the same target genome assembly. pairLiftOver will be especially useful when
+re-mapping raw reads is not feasible.
 
 Installation
 ============
@@ -19,22 +23,24 @@ or `pip <https://pypi.org/project/pip/>`_::
     $ conda activate pairliftover
     $ pip install pairLiftOver hic-straw
 
-Data Format
-===========
-Currently, pairLiftOver supports 4 input data formats: `4DN pairs <https://github.com/4dn-dcic/pairix/blob/master/pairs_format_specification.md>`_,
-`allValidPairs <https://nservant.github.io/HiC-Pro/RESULTS.html>`_, `cool <https://open2c.github.io/cooler/>`_,
-and `hic <https://github.com/aidenlab/juicer/wiki/Data>`_. It is necessary to provide a pairs file
+Overview
+========
+The inputs to pairLiftOver include two parts. The first part is a file containing the chromatin
+contacts information. This file can be either a pairs file
 (`4DN pairs <https://github.com/4dn-dcic/pairix/blob/master/pairs_format_specification.md>`_ or
-`allValidPairs <https://nservant.github.io/HiC-Pro/RESULTS.html>`_) to get the most accurate results,
-however, when such file is not available, pairLiftOver can also operate on contact matrices binned at kilobase resolutions
-(in `cool <https://open2c.github.io/cooler/>`_ or `hic <https://github.com/aidenlab/juicer/wiki/Data>`_ formats).
-For hic format, since multiple matrices at various resolutions are stored in a single file, pairLiftOver automatically detects
-and reads data from the one at the highest resolution. 
+`HiC-Pro allValidPairs <https://nservant.github.io/HiC-Pro/RESULTS.html>`_)
+with each row representing a pair of interacting genomic loci in base-pair resolution, or a matrix
+file (`.cool <https://open2c.github.io/cooler/>`_ or `.hic <https://github.com/aidenlab/juicer/wiki/Data>`_),
+which stores interaction frequencies between genomic intervals of fixed size. The second part is a
+`UCSC chain file <https://genome.ucsc.edu/goldenPath/help/chain.html>`_, which describes pairwise
+alignment that allows gaps in both assemblies simultaneously. Internally, pairLiftOver represents
+a chain file as IntervalTrees, with one tree per chromosome, to efficiently search for a specific
+genomic position in a chain file and locate the matched position in the target genome. The converted
+chromatin contacts will be reported in either a sorted 4DN pairs file, which can be directly used
+to generate contact matrix in various formats, or a matrix file in .cool or .hic formats.
 
-The default output of pairLiftOver is a sorted pairs file in the standard 4DN pairs format,
-containing seven columns: “readID”, “chr1”, “pos1”, “chr2”, “pos2”, “strand1”, and “strand2”.
-However, you can also choose to output a matrix file in cool or hic format by setting the
-parameter ``--output-format``.
+.. image:: ./images/fig1.svg.png
+        :align: center
 
 Usage
 =====
@@ -57,22 +63,12 @@ on this function::
     --out-pre K562-format-conversion-test --output-format hic --out-chromsizes hg19.chrom.sizes \
     --in-assembly hg19 --out-assembly hg19 --memory 40G
 
-Running time and memory usage
-=============================
-The running time of pairLiftOver grows linearly with the number of contact pairs. The memory usage can
-be roughly controlled by the parameter ``--memory``. In the figure below, pairLiftOver was tested on the
-downsampled GM12878 Hi-C datasets (Rao 2014) (ranging from 100 million to 1 billion valid pairs). For each
-run, the memory and the number of processes allocated to pairLiftOver were set to 8Gb (``--memory 8G``) and
-8 (``--nproc 8``), respectively.
-
-.. image:: ./images/running-time-and-memory.png
-        :align: center
 
 Accuracy
 ========
-So far, pairLiftOver has been tested on datasets of human (Rao 2014, GM12878 and K562), mouse (Rao 2014, CH12-LX)
-and zebrafish (Yang 2020, brain tissue). And the matrices obtained by pairLiftOver are nearly identical to the
-re-mapping results at various resolutions.
+Using large Hi-C datasets of different species as a benchmark, we show that compared with
+the strategy directly re-mapping raw reads to a different genome, pairLiftOver runs on
+average 42 times faster, while outputs nearly identical contact matrices. 
 
 .. image:: ./images/accuracy.png
         :align: center
