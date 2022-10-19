@@ -64,8 +64,8 @@ on this function::
     --in-assembly hg19 --out-assembly hg19 --memory 40G
 
 
-Accuracy
-========
+Performance
+===========
 Using large Hi-C datasets of different species as a benchmark, we show that compared with
 the strategy directly re-mapping raw reads to a different genome, pairLiftOver runs on
 average 42 times faster, while outputs nearly identical contact matrices. 
