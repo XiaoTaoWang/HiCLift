@@ -1,15 +1,15 @@
 pairLiftOver
 ============
-The conversion of genomic coordinates between different assemblies is a common task in many
-integrative and comparative studies. While a number of tools are available to accomplish
-this task for one-dimensional datasets, such as those from ChIP-Seq, ATAC-Seq, and RNA-Seq,
-none of them can handle with chromatin contact data that are associated with two-dimensional
-(2D) coordinates. Here we present pairLiftOver, a UCSC-chain-file-based tool, that converts
-the 2D genomic coordinates of chromatin contacts from one assembly to another. Using Hi-C
-of various species as the benchmark datasets, we show that pairLiftOver runs efficiently
-and outputs nearly identical contact matrices with the ones with raw sequencing reads
-re-mapped to the same target genome assembly. pairLiftOver will be especially useful when
-re-mapping raw reads is not feasible.
+With the continuous effort to improve the quality of human reference genome and the generation
+of more and more personal genomes, the conversion of genomic coordinates between genome
+assemblies is critical in many integrative and comparative studies. Several tools have been
+developed for this task. However, despite the importance of 3D genome organization in gene
+regulation and disease, no tool exists to convert genome assemblies for chromatin interaction
+data. Here we present pairLiftOver, a UCSC-chain-file-based tool, for converting the genomic
+coordinates of chromatin contacts from one assembly to another. Using large Hi-C datasets of
+different species as a benchmark, we show that compared with the strategy directly re-mapping
+raw reads to a different genome, pairLiftOver runs on average 42 times faster, while outputs
+nearly identical contact matrices. 
 
 Installation
 ============
