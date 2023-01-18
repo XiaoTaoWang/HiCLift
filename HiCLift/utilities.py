@@ -1,6 +1,6 @@
-import subprocess, sys, os, io, logging, cooler, pairLiftOver
-from pairLiftOver.liftover import LiftOver
-from pairLiftOver.io import open_pairs, _pixel_to_reads, _pairs_write
+import subprocess, sys, os, io, logging, cooler, HiCLift
+from HiCLift.liftover import LiftOver
+from HiCLift.io import open_pairs, _pixel_to_reads, _pairs_write
 
 log = logging.getLogger(__name__)
 
@@ -132,9 +132,9 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
         shape='upper triangle'
     )
     if in_assembly != out_assembly:
-        header.append('#pairLiftOver: coordinates transformed from {0}'.format(in_assembly))
+        header.append('#HiCLift: coordinates transformed from {0}'.format(in_assembly))
     else:
-        header.append('#pairLiftOver: pure data format conversion')
+        header.append('#HiCLift: pure data format conversion')
 
     outstream.writelines((l+'\n' for l in header))
     outstream.flush()
@@ -237,7 +237,7 @@ def liftover(in_path, out_pre, in_format, out_format, in_chroms, out_chroms, in_
             
             os.remove(outcool)
         else:
-            data_folder = os.path.join(os.path.split(pairLiftOver.__file__)[0], 'data')
+            data_folder = os.path.join(os.path.split(HiCLift.__file__)[0], 'data')
             juicer_folder = os.path.join(data_folder, 'juicer_tools_1.11.09_jcuda.0.8.jar')
             outhic = os.path.join(outfolder, '{0}.hic'.format(out_pre))
             if high_res:

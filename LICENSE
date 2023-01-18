@@ -9,6 +9,12 @@ It cannot be used for commercial purposes without permission from the authors. F
 the use for a commercial purpose or by a commercial or for-profit entity, please contact
 Dr. Feng Yue (yue@northwestern.edu).
 
+If utilization of HiCLift (or the modified versions) results in a publication, please cite
+the following publication:
+
+Wang, X., Yue, F. HiCLift: A fast and efficient tool for converting chromatin interaction
+data between genome assemblies.
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
 LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
 EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER

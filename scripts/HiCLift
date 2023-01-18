@@ -5,9 +5,9 @@
 
 ## Required modules
 
-import argparse, sys, logging, logging.handlers, traceback, pairLiftOver, os, subprocess
+import argparse, sys, logging, logging.handlers, traceback, HiCLift, os, subprocess
 
-currentVersion = pairLiftOver.__version__
+currentVersion = HiCLift.__version__
 
 
 def getargs():
@@ -38,10 +38,10 @@ def getargs():
     parser.add_argument('--out-assembly', default='hg38', help='''Target assembly of the output.''')
     parser.add_argument('--chain-file', help='''The coordinate conversion chain file from UCSC. If not provided, the file
                         will be internally downloaded according to "--in-assembly" and "--out-assembly".''')
-    parser.add_argument('--tmpdir', default='.pairliftover', help='''Temporary folder for intermediate results.''')
+    parser.add_argument('--tmpdir', default='.HiCLift', help='''Temporary folder for intermediate results.''')
     parser.add_argument('--memory', default='8G', help='''The amount of allocated memory.''')
     parser.add_argument('--nproc', default=8, type=int, help='''Number of allocated processes''')
-    parser.add_argument('--logFile', default = 'pairLiftOver.log', help = '''Logging file name.''')
+    parser.add_argument('--logFile', default = 'HiCLift.log', help = '''Logging file name.''')
 
     ## Parse the command-line arguments
     commands = sys.argv[1:]
@@ -98,7 +98,7 @@ def run():
         argtxt = '\n'.join(arglist)
         logger.info('\n' + argtxt)
 
-        from pairLiftOver.utilities import liftover
+        from HiCLift.utilities import liftover
 
         if args.in_assembly == args.out_assembly:
             logger.info('Trying to perform a pure format conversion without liftover ...')

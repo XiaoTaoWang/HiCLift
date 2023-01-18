@@ -8,7 +8,7 @@ with a C-based IntervalTree for accelerating the computation.
 
 import os
 import gzip
-from pairLiftOver.chainfile import open_liftover_chain_file, LiftOverChainFile
+from HiCLift.chainfile import open_liftover_chain_file, LiftOverChainFile
 
 class LiftOver:
     def __init__(self, from_db, to_db=None, search_dir='.', cache_dir=os.path.expanduser("~/.pyliftover"),
