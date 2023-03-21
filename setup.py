@@ -1,11 +1,7 @@
-# Author: Tarik Salameh
+# Author: Xiaotao Wang
 
 """
 Setup script for HiCLift.
-
-This is a free software under GPLv3. Therefore, you can modify, redistribute
-or even mix it with other GPL-compatible codes. See the file LICENSE
-included with the distribution for more details.
 
 """
 import os, sys, HiCLift, glob
@@ -27,7 +23,7 @@ setuptools.setup(
     name = 'HiCLift',
     version = HiCLift.__version__,
     author = HiCLift.__author__,
-    author_email = 'wangxiaotao686@gmail.com',
+    author_email = 'wangxiaotao@fudan.edu.cn',
     url = 'https://github.com/XiaoTaoWang/HiCLift',
     description = 'A fast and efficient tool for converting chromatin interaction data between genome assemblies',
     keywords = 'Hi-C LiftOver',

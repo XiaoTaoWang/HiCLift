@@ -13,6 +13,11 @@ faster (hours vs. days), while outputs nearly identical contact matrices. More i
 HiCLift does not need to re-map the raw reads, it can directly convert human patient sample data,
 where the raw sequencing reads are sometimes hard to acquire or not available.
 
+Citation
+========
+Wang, X., Yue, F. HiCLift: A fast and efficient tool for converting chromatin interaction
+data between genome assemblies. biorxiv. 2023.
+
 Installation
 ============
 HiCLift and all the dependencies can be installed through either `mamba <https://mamba.readthedocs.io/en/latest/installation.html>`_
