@@ -16,7 +16,7 @@ where the raw sequencing reads are sometimes hard to acquire or not available.
 Citation
 ========
 Wang, X., Yue, F. HiCLift: A fast and efficient tool for converting chromatin interaction
-data between genome assemblies. biorxiv. 2023.
+data between genome assemblies. Bioinformatics. 2023.
 
 Installation
 ============
