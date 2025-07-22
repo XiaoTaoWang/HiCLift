@@ -20,7 +20,7 @@ data between genome assemblies. Bioinformatics. 2023.
 
 Installation
 ============
-HiCLift and all the dependencies can be installed through either `mamba <https://mamba.readthedocs.io/en/latest/installation.html>`_
+HiCLift and all the dependencies can be installed through either `mamba <https://github.com/conda-forge/miniforge>`_
 or `pip <https://pypi.org/project/pip/>`_::
 
     $ conda config --append channels defaults
